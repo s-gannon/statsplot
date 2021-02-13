@@ -83,7 +83,7 @@ m, b = np.polyfit(x, y, 1)  #gets the slope and y-int of the linear regression l
 
 plt.plot(x, y, 'o')         #plots the points in a scatter plot
 
-#plt.plot(x, m*x + b, "r--", label=("y = " + str(m) + "x + " + str(b))) #plot lin-reg
+plt.plot(x, m*x + b, "r--", label=("y = " + str(m) + "x + " + str(b))) #plot lin-reg
 plt.xlabel(str(input("Enter x-axis label: ")))
 plt.ylabel(str(input("Enter y-axis label: ")))
 plt.title(str(input("Enter graph title: ")))
