@@ -1,35 +1,55 @@
 from matplotlib import pyplot as plt
 import openpyxl as xl
 import numpy as np
+import math
 
-def resid(x_pts, y_pts, m, b):
+"""def resid(x_pts, y_pts, m, b):  #returns the new y points to be plotted (as resid)
     resid_pts = []
     for x in range(len(y_pts)):
-        resid_pts.append(y_pts[x] - (m*x_pts[x] + b))
+        resid_pts.append(y_pts[x] - ((m * x_pts[x]) + b))
+    print(resid_pts)
     return resid_pts
-
-def getCorr(x_pts, y_pts):
+"""
+def getR(x_pts, y_pts):         #gets the correlation value
     mean_x = mean_y = 0
     for x in range(len(x_pts)):
         mean_x += x_pts[x]
         mean_y += y_pts[x]
-    mean_x = float(mean_x)/float(len(x_pts))
-    mean_y = float(mean_y)/float(len(y_pts))
+    mean_x = mean_x/len(x_pts)
+    mean_y = mean_y/len(y_pts)
     a = x_pts
     b = y_pts
     for x in range(len(x_pts)):
         a[x] = mean_x - x_pts[x]
         b[x] = mean_y - y_pts[x]
+    ab = a_squared = b_squared = []
+    for x in range(len(a)):
+        ab.append(a[x]*b[x])
+        a_squared.append(a[x]*a[x])
+        b_squared.append(b[x]*b[x])
+    sum_ab = sum_a_sq = sum_b_sq = 0
+    for x in range(len(ab)):
+        sum_ab += ab[x]
+        sum_a_sq += a_squared[x]
+        sum_b_sq += b_squared[x]
+    return (float(sum_ab)/math.sqrt(float(sum_a_sq) * float(sum_b_sq)))
     
 x_points = []
 y_points = []
 x_range = ["",[0,0]]
 y_range = ["",[0,0]]
-
+wb = ws = ""            #init all the variables
 print("Remember to put this file in the same folder as the Excel file!\n")
-wb = xl.load_workbook(str(input("Enter in the Excel file name: ")))
-ws = wb.active
-
+filename = str(input("Enter in the Excel file name: "))
+if filename.find(".xlsx") == -1:
+    filename += ".xlsx"
+try:
+    wb = xl.load_workbook(filename)
+    ws = wb.active
+except:
+    print("An exception occured loading the workbook and worksheet.")
+    print("Check to make sure your path/filename is spelled correctly")
+#getting input for the start & end of the x & y data
 x_start = str(input("Enter the start of the set of data for x-axis (format: A1): ")).upper()
 x_end = str(input("Enter the end of the set of data for x-axis (format: A1): ")).upper()
 y_start = str(input("Enter the start of the set of data for y-axis (format: A1): ")).upper()
@@ -59,15 +79,17 @@ for y in range(len(y_points)):
 
 x = np.array(x_points)
 y = np.array(y_points)      #converts x and y points to a numpy array
-plt.plot(x, y, 'o')         #plots the points in a scatter plot
-
 m, b = np.polyfit(x, y, 1)  #gets the slope and y-int of the linear regression line
 
-plt.plot(x, m*x + b, label=("y = " + str(m) + "x + " + str(b))) #plot lin-reg
+plt.plot(x, y, 'o')         #plots the points in a scatter plot
+
+#plt.plot(x, m*x + b, "r--", label=("y = " + str(m) + "x + " + str(b))) #plot lin-reg
 plt.xlabel(str(input("Enter x-axis label: ")))
 plt.ylabel(str(input("Enter y-axis label: ")))
 plt.title(str(input("Enter graph title: ")))
 print("\n\nLinear Regression Equation: y =", m, "* x +", b)
-
-plt.legend()
-plt.show()
+print("R value: ", getR(x_points, y_points))
+#plt.axis([0,3000000,0,3000000])    #axis numberings
+plt.legend()    #outputs a legend if lines have labels
+plt.grid(True)  #turns on or off the grid
+plt.show()      #outputs the plot
