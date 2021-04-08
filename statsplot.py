@@ -2,6 +2,7 @@ from matplotlib import pyplot as plt
 import openpyxl as xl
 import numpy as np
 import math
+import re   #regex ftw
 
 """def resid(x_pts, y_pts, m, b):  #returns the new y points to be plotted (as resid)
     resid_pts = []
@@ -10,6 +11,7 @@ import math
     print(resid_pts)
     return resid_pts
 """
+#   function declarations
 def getR(x_pts, y_pts):         #gets the correlation value
     mean_x = mean_y = 0
     for x in range(len(x_pts)):
@@ -33,22 +35,24 @@ def getR(x_pts, y_pts):         #gets the correlation value
         sum_a_sq += a_squared[x]
         sum_b_sq += b_squared[x]
     return (float(sum_ab)/math.sqrt(float(sum_a_sq) * float(sum_b_sq)))
-    
+#   variable initialization
 x_points = []
 y_points = []
 x_range = ["",[0,0]]
 y_range = ["",[0,0]]
-wb = ws = ""            #init all the variables
-print("Remember to put this file in the same folder as the Excel file!\n")
-filename = str(input("Enter in the Excel file name: "))
-if filename.find(".xlsx") == -1:
-    filename += ".xlsx"
+wb = ws = ""
+#   Main
+filename = input("Enter in the Excel file name: ")
+while re.match(r"^([A-Z]:\\((\w+\\)+)?)?([\w\-_]+.xlsx)$", filename) == None:
+    print("Invalid file name. Check your path and file extension.")
+    filename = input("Enter in the Excel file name: ")
 try:
     wb = xl.load_workbook(filename)
     ws = wb.active
 except:
     print("An exception occured loading the workbook and worksheet.")
     print("Check to make sure your path/filename is spelled correctly")
+    exit()
 #getting input for the start & end of the x & y data
 x_start = str(input("Enter the start of the set of data for x-axis (format: A1): ")).upper()
 x_end = str(input("Enter the end of the set of data for x-axis (format: A1): ")).upper()
@@ -76,12 +80,12 @@ for x in range(len(x_points)):
 
 for y in range(len(y_points)):
     y_points[y] = ws[y_points[y]].value
-
+#converts x and y points to a numpy array
 x = np.array(x_points)
-y = np.array(y_points)      #converts x and y points to a numpy array
+y = np.array(y_points)      
 m, b = np.polyfit(x, y, 1)  #gets the slope and y-int of the linear regression line
 
-plt.plot(x, y, 'o')         #plots the points in a scatter plot
+plt.plot(x, y, 'o')         #plots the points in a scatter plot using dots
 
 plt.plot(x, m*x + b, "r--", label=("y = " + str(m) + "x + " + str(b))) #plot lin-reg
 plt.xlabel(str(input("Enter x-axis label: ")))
